@@ -1,0 +1,281 @@
+body {
+  margin: 0;
+  background-color: #eef1f5; /* Fondo muy claro para contraste */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* --- VARIABLES DE COLOR --- */
+:root {
+  --unexca-blue: #003366; /* Azul Marino Oscuro (UNEXCA) */
+  --unexca-light-blue: #0056b3; /* Azul más vibrante para hover */
+  --border-color: #ccc;
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --success-color: #28a745; /* Verde para mensajes de éxito */
+  --error-color: #dc3545; /* Rojo para mensajes de error */
+}
+
+/* --- ESTRUCTURA GENERAL --- */
+.unexca-app {
+  padding: 0;
+}
+
+.header {
+  background-color: var(--unexca-blue);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  margin: 0 0 15px 0;
+  font-size: 1.8rem;
+}
+
+.user-switcher {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.switch-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.switch-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.switch-btn.active {
+  background-color: white;
+  color: var(--unexca-blue);
+  font-weight: bold;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+/* --- ESTILOS DE TARJETA (CARD) --- */
+.card-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 30px;
+  padding: 25px;
+  border: 1px solid #ddd; /* Borde sutil */
+}
+
+.section-title, .form-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--unexca-blue);
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+  margin-top: 0;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* --- FORMULARIO GENERAL --- */
+.grades-form {
+  padding: 10px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus, select:focus {
+  border-color: var(--unexca-blue);
+  box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.2);
+  outline: none;
+}
+
+/* Estilos para campos de notas dinámicos */
+.nota-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.nota-input-group input {
+  flex-grow: 1;
+  margin-bottom: 0; /* Anula el margin-bottom del form-group */
+}
+
+.add-nota-btn, .delete-nota-btn {
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.add-nota-btn {
+  background-color: #28a745; /* Verde */
+  color: white;
+  border: none;
+  margin-top: 10px;
+}
+
+.add-nota-btn:hover {
+  background-color: #218838;
+}
+
+.delete-nota-btn {
+  background-color: #dc3545; /* Rojo */
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 8px 12px;
+}
+
+.delete-nota-btn:hover {
+  background-color: #c82333;
+}
+
+
+/* Botón de Guardar / Consultar */
+.save-button {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--unexca-blue);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.save-button:hover {
+  background-color: var(--unexca-light-blue);
+}
+
+/* --- MENSAJES DE ESTADO --- */
+.success-message {
+  background-color: #d4edda;
+  color: var(--success-color);
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: var(--error-color);
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* --- RESULTADOS DE NOTAS ESTUDIANTE (TABLA) --- */
+.student-grades-results {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.student-grades-results h3 {
+  font-size: 1.3rem;
+  color: var(--unexca-blue);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.materia-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  margin-top: 20px;
+}
+
+.materia-table th, .materia-table td {
+  padding: 12px 15px;
+  border: 1px solid #eee;
+}
+
+.materia-table thead {
+  background-color: var(--unexca-blue);
+  color: white;
+}
+
+.materia-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.materia-table tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+
+/* --- MEDIA QUERIES (PARA RESPONSIVE) --- */
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 1.6rem;
+  }
+  .section-title, .form-title {
+    font-size: 1.4rem;
+  }
+  .container {
+    padding: 0 15px 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.3rem;
+  }
+  .user-switcher {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .switch-btn {
+    width: 80%;
+    margin: 0 auto;
+  }
+  .card-section {
+    padding: 15px;
+  }
+  .form-title {
+    font-size: 1.3rem;
+  }
+}
