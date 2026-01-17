@@ -87,24 +87,38 @@ function ProfesorView() {
     setNotas(newNotas);
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+  
     if (!isWeightValid) {
-      setMensaje('Error: La suma de los pesos porcentuales debe ser 100%. Por favor, ajuste los valores.');
-      setTimeout(() => setMensaje(''), 5000);
-      return;
-    }
-    
-    // Aquí iría la lógica para enviar los datos a un backend
-    // Los datos a guardar serían: cedula, semestre, materia, y la lista 'notas' con score y weight.
-    console.log({ cedula, semestre, materia, notas, notaFinal: finalScore });
-    setMensaje(`Notas guardadas exitosamente. Nota Final Calculada: ${finalScore} / 20.`);
-    
-    // (Opcional) Reiniciar formulario después de guardar
-    // setCedula(''); setSemestre(''); setMateria(''); setNotas([{ id: 1, score: '', weight: 100, description: 'Examen Final' }]);
-    setTimeout(() => setMensaje(''), 5000); 
+      setMensaje('Error: La suma de los pesos debe ser 100%.');
+     return;
+   }
+
+  const datosAEnviar = {
+    cedula_estudiante: cedula,
+    nombre_materia: materia,
+    semestre: semestre,
+    evaluaciones: notas // El array de notas que creaste dinámicamente
   };
 
+  try {
+    const response = await fetch('http://127.0.0.1:5000/api/guardar_notas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datosAEnviar)
+    });
+
+    if (response.ok) {
+      setMensaje(`Notas de ${cedula} guardadas. Nota Final: ${finalScore}`);
+    } else {
+      setMensaje('Error al guardar en el servidor');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    setMensaje('No se pudo conectar con el servidor (¿Está prendido Flask?)');
+  }
+  };
   return (
     <section className="card-section form-card">
       <h2 className="form-title">Carga de Notas (Ponderación Dinámica)</h2>
