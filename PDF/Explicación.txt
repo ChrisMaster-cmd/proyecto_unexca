@@ -1,0 +1,7 @@
+En la logica del PDF esta documentado que se hizo, que fue lo siguiente: 
+
+sistema de registro de calificaciones con capacidad de
+generación de reportes en formato PDF. El sistema utiliza Python, 
+Flask-SQLAlchemy para la gestión de base de datos y ReportLab para la
+creación del pdf. Su tamaño de letra, forma y resto de estructura.
+
