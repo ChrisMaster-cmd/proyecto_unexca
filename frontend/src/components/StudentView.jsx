@@ -193,59 +193,30 @@ function StudentView() {
     }, 500);
   };
 
-  const handleSearchNotas = (event) => {
+  const handleSearchNotas = async (event) => {
     event.preventDefault();
     setNotasEstudiante(null);
-    setMensaje('');
+    setMensaje('Buscando...');
 
-    if (!cedula) {
-      setMensaje('Error: Por favor, ingrese su cédula.');
-      return;
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/notas_estudiante/${cedula}/${semestreSeleccionado}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setNotasEstudiante(data);
+        setMensaje(`Notas encontradas para el Semestre ${semestreSeleccionado}.`);
+      } else {
+        setMensaje(data.mensaje || 'Estudiante no encontrado o sin notas.');
+      }
+
+    } 
+    catch (error) {
+      console.error('Error de conexión:', error);
+      setMensaje('Error de conexión con el servidor.');
     }
 
-    if (!semestreSeleccionado) {
-      setMensaje('Error: Por favor, seleccione un semestre.');
-      return;
-    }
+  }; // <--- Aquí termina la función. Asegúrate de que NO haya código suelto inmediatamente abajo.
 
-    // Validar cédula (8 dígitos)
-    if (!/^\d{8}$/.test(cedula)) {
-      setMensaje('Error: La cédula debe tener 8 dígitos numéricos.');
-      return;
-    }
-
-    const estudianteData = mockNotasDB[cedula];
-    
-    if (!estudianteData) {
-      setMensaje('Estudiante no encontrado en el sistema.');
-      return;
-    }
-
-    const semestreData = estudianteData.semestres[semestreSeleccionado];
-    
-    if (!semestreData) {
-      // Mostrar todas las materias del semestre (incluso si no tiene notas)
-      const materiasSemestre = materiasPorSemestre[semestreSeleccionado] || [];
-      const materiasConNotas = materiasSemestre.map(nombreMateria => ({
-        nombre: nombreMateria,
-        evaluaciones: [],
-        notaFinal: null,
-        sinNotas: true
-      }));
-      
-      setNotasEstudiante({
-        nombre: estudianteData.nombre,
-        materias: materiasConNotas
-      });
-      setMensaje(`No se encontraron notas registradas para el Semestre ${semestreSeleccionado}. Mostrando materias del semestre.`);
-    } else {
-      setNotasEstudiante({
-        nombre: estudianteData.nombre,
-        materias: semestreData.materias
-      });
-      setMensaje(`Notas encontradas para el Semestre ${semestreSeleccionado}.`);
-    }
-  };
 
   // Calcular promedio del semestre
   const promedioSemestre = useMemo(() => {
@@ -348,9 +319,9 @@ function StudentView() {
                         <div className="evaluaciones-detalle">
                           {materia.evaluaciones.map((evaluacion, idx) => (
                             <div key={idx} className="evaluacion-item">
-                              <span className="eval-desc">{eval.descripcion}: </span>
-                              <span className="eval-nota">{eval.puntaje}/20</span>
-                              <span className="eval-peso">({eval.peso}%)</span>
+                              <span className="eval-desc">{evaluacion.descripcion}: </span>
+                              <span className="eval-nota">{evaluacion.puntaje}/20 </span>
+                              <span className="eval-peso">({evaluacion.peso}%)</span>
                             </div>
                           ))}
                         </div>

@@ -12,6 +12,7 @@ with app.app_context():
     if Materia.query.count() == 0:
         prueba = Materia(
             nombre="Programacion 1", 
+            semestre="1",
             horario="Lunes 8:00 AM - 10:00 AM", 
             profesor_cedula="12345"
         )

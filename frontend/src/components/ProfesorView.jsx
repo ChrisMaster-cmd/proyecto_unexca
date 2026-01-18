@@ -9,6 +9,7 @@ function ProfesorView() {
   // Estado inicial con score (0-20), weight (0-100%) y description
   const [notas, setNotas] = useState([{ id: 1, score: '', weight: 100, description: 'Examen Final' }]);
   const [mensaje, setMensaje] = useState('');
+  const [cargando, setCargando] = useState(false);
 
   // Simulación de datos (de un backend real)
   const materiasPorSemestre = {
@@ -83,41 +84,49 @@ function ProfesorView() {
         return { ...nota, [field]: value };
       }
       return nota;
-    });
+    }); // <--- Este cierra el map
     setNotas(newNotas);
-  };
+  }; // <--- Este cierra la función
 
-  const handleSubmit = async (event) => {
+ const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    
     if (!isWeightValid) {
-      setMensaje('Error: La suma de los pesos debe ser 100%.');
-     return;
-   }
-
-  const datosAEnviar = {
-    cedula_estudiante: cedula,
-    nombre_materia: materia,
-    semestre: semestre,
-    evaluaciones: notas // El array de notas que creaste dinámicamente
-  };
-
-  try {
-    const response = await fetch('http://127.0.0.1:5000/api/guardar_notas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(datosAEnviar)
-    });
-
-    if (response.ok) {
-      setMensaje(`Notas de ${cedula} guardadas. Nota Final: ${finalScore}`);
-    } else {
-      setMensaje('Error al guardar en el servidor');
+      setMensaje('Error: La suma de los pesos porcentuales debe ser 100%.');
+      return;
     }
-  } catch (error) {
-    console.error('Error:', error);
-    setMensaje('No se pudo conectar con el servidor (¿Está prendido Flask?)');
-  }
+
+    setCargando(true);
+
+    const datosAEnviar = {
+      cedula_estudiante: cedula,
+      nombre_materia: materia,
+      semestre: semestre,
+      evaluaciones: notas 
+    };
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/guardar_notas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosAEnviar)
+      });
+
+      if (response.ok) {
+        setMensaje(`✅ Notas de ${cedula} guardadas. Nota Final: ${finalScore}`);
+        setCedula('');
+        setNotas([{ id: 1, score: '', weight: 100, description: 'Examen Final' }]);
+      } else {
+        const errorData = await response.json();
+        setMensaje(`❌ Error: ${errorData.error || 'No se pudo guardar'}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setMensaje('❌ No se pudo conectar con el servidor (¿Está prendido Flask?)');
+    } finally {
+      setCargando(false);
+      setTimeout(() => setMensaje(''), 5000);
+    }
   };
   return (
     <section className="card-section form-card">
@@ -234,7 +243,7 @@ function ProfesorView() {
               {notas.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => handleDeleteNotaField(notaField.id)}
+                  onClick={() => handleDeleteNotaField(notaField.id)}  
                   className="delete-nota-btn col-actions"
                   title="Eliminar Evaluación"
                 >
@@ -264,12 +273,14 @@ function ProfesorView() {
           </p>
         </div>
         
-        <button type="submit" className="save-button" disabled={!isWeightValid}>
+        <button type="submit" className="save-button" disabled={!isWeightValid || cargando}>
           Guardar Notas
+          {cargando ? 'Procesando...' : 'Guardar Notas'}
         </button>
       </form>
     </section>
   );
+
 }
 
 export default ProfesorView;
