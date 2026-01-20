@@ -1,5 +1,5 @@
 from app import create_app
-from app.extensions import db  # Solo importamos db desde aquí
+from app.extensions import db  
 from app.models.academic import Materia, Nota
 
 app = create_app()

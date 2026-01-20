@@ -11,7 +11,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:123456789@localhost:5432/grestion_notas_unexca'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # Esta es la línea mágica que el error te pide:
+
     db.init_app(app)
     
     # Registra tus rutas

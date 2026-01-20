@@ -65,10 +65,11 @@ def consultar_notas(cedula, semestre):
                     "notaFinal": 0
                 }
             
+            # Cambiamos los nombres de las llaves para que React las reconozca
             materias_dict[materia.nombre]["evaluaciones"].append({
-                "descripcion": nota.descripcion, # Antes decía 'descripcion'
-                "puntaje": nota.puntaje,        # Antes decía 'puntaje'
-                "peso": nota.peso_porcentaje    # Antes decía 'peso'
+                "descripcion": nota.descripcion, # Antes: 'descripcion' (está bien)
+                "puntaje": nota.puntaje,        # Antes: 'puntaje' (está bien)
+                "peso": nota.peso_porcentaje    # ¡IMPORTANTE!: React espera 'peso', no 'peso_porcentaje'
             })
             # Sumamos la contribución a la nota final
             materias_dict[materia.nombre]["notaFinal"] += (nota.puntaje * (nota.peso_porcentaje / 100))
