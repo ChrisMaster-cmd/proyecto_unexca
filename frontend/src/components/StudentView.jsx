@@ -1,5 +1,3 @@
-// src/components/StudentView.jsx
-
 import React, { useState, useMemo } from 'react';
 
 function StudentView() {
@@ -8,164 +6,58 @@ function StudentView() {
   const [notasEstudiante, setNotasEstudiante] = useState(null);
   const [mensaje, setMensaje] = useState('');
 
-  // Datos simulados mejorados (estructura más realista)
-  const mockNotasDB = {
-    '12345678': {
-      nombre: 'Juan Pérez',
-      semestres: {
-        '1': {
-          materias: [
-            {
-              nombre: 'Introducción a la Programación',
-              evaluaciones: [
-                { descripcion: 'Tarea 1', puntaje: 15, peso: 20 },
-                { descripcion: 'Quiz 1', puntaje: 18, peso: 10 },
-                { descripcion: 'Examen Final', puntaje: 16.5, peso: 70 }
-              ],
-              notaFinal: 16.3
-            },
-            {
-              nombre: 'Cálculo I',
-              evaluaciones: [
-                { descripcion: 'Tarea 1', puntaje: 12, peso: 15 },
-                { descripcion: 'Examen Parcial', puntaje: 10, peso: 35 },
-                { descripcion: 'Examen Final', puntaje: 11, peso: 50 }
-              ],
-              notaFinal: 10.8
-            }
-          ]
-        },
-        '2': {
-          materias: [
-            {
-              nombre: 'Programación II',
-              evaluaciones: [
-                { descripcion: 'Proyecto 1', puntaje: 19, peso: 30 },
-                { descripcion: 'Proyecto 2', puntaje: 20, peso: 30 },
-                { descripcion: 'Examen Final', puntaje: 19.5, peso: 40 }
-              ],
-              notaFinal: 19.5
-            }
-          ]
-        }
-      }
-    },
-    '87654321': {
-      nombre: 'María Rodríguez',
-      semestres: {
-        '1': {
-          materias: [
-            {
-              nombre: 'Introducción a la Programación',
-              evaluaciones: [
-                { descripcion: 'Tarea 1', puntaje: 10, peso: 20 },
-                { descripcion: 'Quiz 1', puntaje: 12, peso: 10 },
-                { descripcion: 'Examen Final', puntaje: 11, peso: 70 }
-              ],
-              notaFinal: 10.9
-            }
-          ]
-        }
-      }
-    }
-  };
-
-  // Lista de materias por semestre (coincide con ProfesorView)
-  const materiasPorSemestre = {
-    '1': ['Introducción a la Programación', 'Cálculo I'],
-    '2': ['Programación II', 'Cálculo II'],
-    '3': ['Estructuras de Datos', 'Física I'],
-    '4': ['Bases de Datos', 'Física II'],
-    '5': ['Redes de Computadoras', 'Sistemas Operativos'],
-    '6': ['Inteligencia Artificial', 'Ingeniería de Software'],
-    '7': ['Desarrollo Web Avanzado', 'Seguridad Informática'],
-    '8': ['Proyecto de Grado', 'Emprendimiento Tecnológico'],
-  };
-
-  // Función para imprimir el reporte
+  // --- LÓGICA DE IMPRESIÓN ---
   const handleImprimir = () => {
     if (!notasEstudiante) return;
-
-      const printWindow = window.open('', '_blank');
-      
-      // Generamos el contenido HTML del PDF
-      printWindow.document.write(`
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
         <html>
           <head>
-            <title>Reporte de Notas - ${notasEstudiante.nombre}</title>
+            <title>Reporte - ${notasEstudiante.nombre}</title>
             <style>
-              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; color: #333; }
-              .header { text-align: center; border-bottom: 2px solid #004a87; margin-bottom: 20px; padding-bottom: 10px; }
-              .student-info { margin-bottom: 30px; line-height: 1.6; background: #f9f9f9; padding: 15px; border-radius: 8px; }
-              table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-              th { background-color: #004a87; color: white; padding: 12px; text-align: left; }
-              td { border: 1px solid #ddd; padding: 10px; }
-              .nota-final { font-weight: bold; }
-              .aprobado { color: #27ae60; }
-              .reprobado { color: #e74c3c; }
-              .eval-list { font-size: 0.9em; color: #666; list-style: none; padding: 0; margin: 0; }
-              .footer { margin-top: 50px; text-align: center; font-size: 0.8em; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+               body { font-family: sans-serif; padding: 20px; color: #333; }
+               .header { text-align: center; border-bottom: 2px solid #003366; margin-bottom: 20px; }
+               table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+               th { background: #003366; color: white; padding: 10px; text-align: left; }
+               td { border: 1px solid #ddd; padding: 8px; }
+               .aprobado { color: green; font-weight: bold; } 
+               .reprobado { color: red; font-weight: bold; }
             </style>
           </head>
           <body>
-            <div class="header">
-              <h1>UNEXCA - Reporte Académico</h1>
-            </div>
-            
-            <div class="student-info">
-              <h2>Notas del Estudiante</h2>
-              <p><strong>Nombre:</strong> ${notasEstudiante.nombre}</p>
-              <p><strong>Cédula:</strong> V-${cedula}</p>
-              <p><strong>Semestre:</strong> ${semestreSeleccionado}</p>
-              <p><strong>Promedio del Semestre:</strong> ${promedioSemestre ? promedioSemestre.toFixed(2) : '--'} / 20</p>
-            </div>
-
+            <div class="header"><h1>UNEXCA - Reporte de Notas</h1></div>
+            <p><strong>Estudiante:</strong> ${notasEstudiante.nombre}</p>
+            <p><strong>Cédula:</strong> V-${cedula}</p>
             <table>
-              <thead>
-                <tr>
-                  <th>Materia</th>
-                  <th>Evaluaciones</th>
-                  <th>Nota Final</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Materia</th><th>Evaluaciones</th><th>Nota</th><th>Estado</th></tr></thead>
               <tbody>
-                ${notasEstudiante.materias.map(m => `
+                ${notasEstudiante.materias.map(m => {
+                  // APLICAMOS EL SEGURO AQUÍ PARA EL PDF
+                  const notaSegura = Math.min(m.notaFinal, 20).toFixed(2);
+                  return `
                   <tr>
-                    <td><strong>${m.nombre}</strong></td>
+                    <td>${m.nombre}</td>
                     <td>
-                      <ul class="eval-list">
+                        <ul style="margin:0; padding-left:15px; font-size:0.9em;">
                         ${m.evaluaciones.map(e => `<li>${e.descripcion}: ${e.puntaje}/20 (${e.peso}%)</li>`).join('')}
-                      </ul>
+                        </ul>
                     </td>
-                    <td class="nota-final">${m.notaFinal.toFixed(2)} / 20</td>
-                    <td class="${m.notaFinal >= 10 ? 'aprobado' : 'reprobado'}">
-                      ${m.notaFinal >= 10 ? 'Aprobado' : 'Reprobado'}
+                    <td>${notaSegura}</td>
+                    <td class="${notaSegura >= 10 ? 'aprobado' : 'reprobado'}">
+                        ${notaSegura >= 10 ? 'Aprobado' : 'Reprobado'}
                     </td>
-                  </tr>
-                `).join('')}
+                  </tr>`;
+                }).join('')}
               </tbody>
             </table>
-
-            <div class="footer">
-              <p>Documento generado digitalmente por el Sistema de Gestión de Notas UNEXCA</p>
-              <p>Fecha de emisión: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
-            </div>
           </body>
         </html>
     `);
-
     printWindow.document.close();
-    
-    // Esperamos un momento para que el navegador procese el estilo antes de abrir el diálogo de impresión
-    printWindow.onload = function() {
-      printWindow.focus();
-      printWindow.print();
-      // Opcional: printWindow.close(); // Esto cerraría la pestaña automáticamente después de imprimir
-   
-    };
+    printWindow.onload = function() { printWindow.focus(); printWindow.print(); };
   };
 
+  // --- LÓGICA DE BÚSQUEDA ---
   const handleSearchNotas = async (event) => {
     event.preventDefault();
     setNotasEstudiante(null);
@@ -179,170 +71,146 @@ function StudentView() {
         setNotasEstudiante(data);
         setMensaje(`Notas encontradas para el Semestre ${semestreSeleccionado}.`);
       } else {
+        setNotasEstudiante(null);
         setMensaje(data.mensaje || 'Estudiante no encontrado o sin notas.');
       }
-
     } 
     catch (error) {
       console.error('Error de conexión:', error);
       setMensaje('Error de conexión con el servidor.');
     }
+  };
 
-  }; // <--- Aquí termina la función. Asegúrate de que NO haya código suelto inmediatamente abajo.
-
-
-  // Calcular promedio del semestre
   const promedioSemestre = useMemo(() => {
     if (!notasEstudiante || !notasEstudiante.materias) return null;
-    
     const materiasConNota = notasEstudiante.materias.filter(m => m.notaFinal !== null);
     if (materiasConNota.length === 0) return null;
     
-    const suma = materiasConNota.reduce((total, materia) => total + materia.notaFinal, 0);
+    // APLICAMOS EL SEGURO AL PROMEDIO TAMBIÉN
+    const suma = materiasConNota.reduce((total, materia) => total + Math.min(materia.notaFinal, 20), 0);
     return suma / materiasConNota.length;
   }, [notasEstudiante]);
 
   return (
-    <section className="card-section form-card">
-      <h2 className="form-title">Consulta de Notas del Estudiante</h2>
+    <section className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden my-8">
+      <div className="bg-[#003366] p-6 text-center">
+        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
+          Consulta de Notas del Estudiante
+        </h2>
+      </div>
       
-      {mensaje && (
-        <p className={mensaje.includes('Error') ? "error-message" : "success-message"}>
-          {mensaje}
-        </p>
-      )}
+      <div className="p-6 md:p-8">
+        {mensaje && (
+          <div className={`p-4 rounded-md mb-6 text-center font-medium border ${
+            mensaje.includes('Error') || mensaje.includes('no encontrado') 
+              ? "bg-red-50 text-red-700 border-red-200" 
+              : "bg-blue-50 text-blue-700 border-blue-200"
+          }`}>
+            {mensaje}
+          </div>
+        )}
 
-      <form className="grades-form" onSubmit={handleSearchNotas}>
-        <div className="form-group">
-          <label htmlFor="cedulaEstudiante">Cédula de Estudiante *</label>
-          <input
-            type="text"
-            id="cedulaEstudiante"
-            placeholder="Cédula (8 dígitos)"
-            value={cedula}
-            onChange={(e) => {
-              const soloNumeros = e.target.value.replace(/\D/g, '');
-              setCedula(soloNumeros.slice(0, 8));
-            }}
-            maxLength="8"
-            inputMode="numeric"
-            pattern="\d{8}"
-            required
-          />
-          <small className="form-hint">8 dígitos numéricos</small>
-        </div>
+        <form onSubmit={handleSearchNotas} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col">
+              <label className="text-sm font-bold text-gray-700 mb-2 uppercase">Cédula de Estudiante *</label>
+              <input
+                type="text"
+                placeholder="Ej: 12345678"
+                value={cedula}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#003366] outline-none transition-all"
+                onChange={(e) => setCedula(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                maxLength="8"
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="semestreConsulta">Semestre *</label>
-          <select
-            id="semestreConsulta"
-            value={semestreSeleccionado}
-            onChange={(e) => setSemestreSeleccionado(e.target.value)}
-            required
-          >
-            <option value="">Seleccione un Semestre</option>
-            {[...Array(8).keys()].map(i => (
-              <option key={i + 1} value={String(i + 1)}>Semestre {i + 1}</option>
-            ))}
-          </select>
-        </div>
-
-        <button type="submit" className="primary-button">
-          Consultar Notas
-        </button>
-      </form>
-
-      {notasEstudiante && (
-        <div className="student-grades-results">
-          <div className="student-header">
-            <h3>Notas del Estudiante</h3>
-            <div className="student-info">
-              <p><strong>Nombre:</strong> {notasEstudiante.nombre}</p>
-              <p><strong>Cédula:</strong> V-{cedula}</p>
-              <p><strong>Semestre:</strong> {semestreSeleccionado}</p>
-              {promedioSemestre !== null && (
-                <p className="promedio-semestre">
-                  <strong>Promedio del Semestre:</strong> 
-                  <span className={`nota-final ${promedioSemestre >= 10 ? 'aprobado' : 'reprobado'}`}>
-                    {promedioSemestre.toFixed(2)} / 20
-                  </span>
-                </p>
-              )}
+            <div className="flex flex-col">
+              <label className="text-sm font-bold text-gray-700 mb-2 uppercase">Semestre *</label>
+              <select
+                value={semestreSeleccionado}
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#003366] outline-none bg-white"
+                onChange={(e) => setSemestreSeleccionado(e.target.value)}
+                required
+              >
+                <option value="">Seleccione...</option>
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                  <option key={num} value={String(num)}>Semestre {num}</option>
+                ))}
+              </select>
             </div>
           </div>
 
-          <div className="table-container">
-            <table className="materia-table">
-              <thead>
-                <tr>
-                  <th>Materia</th>
-                  <th>Evaluaciones</th>
-                  <th>Nota Final</th>
-                  <th>Estado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {notasEstudiante.materias.map((materia, index) => (
-                  <tr key={index}>
-                    <td>{materia.nombre}</td>
-                    <td>
-                      {materia.sinNotas ? (
-                        <span className="sin-notas">Sin notas registradas</span>
-                      ) : (
-                        <div className="evaluaciones-detalle">
-                          {materia.evaluaciones.map((evaluacion, idx) => (
-                            <div key={idx} className="evaluacion-item">
-                              <span className="eval-desc">{evaluacion.descripcion}: </span>
-                              <span className="eval-nota">{evaluacion.puntaje}/20 </span>
-                              <span className="eval-peso">({evaluacion.peso}%)</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      {materia.notaFinal !== null ? (
-                        <span className={`nota-final ${materia.notaFinal >= 10 ? 'aprobado' : 'reprobado'}`}>
-                          {materia.notaFinal.toFixed(2)} / 20
-                        </span>
-                      ) : (
-                        <span className="sin-notas">--</span>
-                      )}
-                    </td>
-                    <td>
-                      {materia.notaFinal !== null ? (
-                        <span className={`estado-badge ${materia.notaFinal >= 10 ? 'badge-aprobado' : 'badge-reprobado'}`}>
-                          {materia.notaFinal >= 10 ? 'Aprobado' : 'Reprobado'}
-                        </span>
-                      ) : (
-                        <span className="sin-notas">Pendiente</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <button type="submit" className="w-full bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 rounded-md shadow-md transition-all uppercase tracking-wide">
+            Consultar Notas
+          </button>
+        </form>
 
-          <div className="action-buttons">
-            <button
-              type="button"
-              onClick={handleImprimir}
-              className="print-button"
-              disabled={notasEstudiante.materias.every(m => m.sinNotas)}
-            >
-              Imprimir Reporte
-            </button>
-            <button
-              type="button"
-              onClick={() => window.print()}
-              className="secondary-button"
-            >
-              Imprimir Esta Página
+        {notasEstudiante && (
+          <div className="mt-10 pt-6 border-t border-gray-100">
+            <div className="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                <p className="text-lg"><strong>Estudiante:</strong> {notasEstudiante.nombre}</p>
+                <p className="text-gray-600">C.I: V-{cedula}</p>
+                {promedioSemestre !== null && (
+                   <p className="mt-2 text-lg">
+                     Promedio: 
+                     <span className={`ml-2 font-bold ${promedioSemestre >= 10 ? 'text-green-600' : 'text-red-600'}`}>
+                        {/* SEGURO EN EL PROMEDIO VISUAL */}
+                        {Math.min(promedioSemestre, 20).toFixed(2)} / 20
+                     </span>
+                   </p>
+                )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-[#003366] text-white text-sm uppercase">
+                    <th className="p-3 text-left rounded-tl-lg">Materia</th>
+                    <th className="p-3 text-left">Evaluaciones</th>
+                    <th className="p-3 text-center">Nota Final</th>
+                    <th className="p-3 text-center rounded-tr-lg">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-700">
+                  {notasEstudiante.materias.map((materia, idx) => {
+                    // SEGURO EN LA NOTA DE CADA FILA
+                    const notaMostrar = Math.min(materia.notaFinal, 20);
+                    return (
+                      <tr key={idx} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="p-3 font-medium align-top">{materia.nombre}</td>
+                        <td className="p-3 align-top">
+                           <ul className="text-sm space-y-1">
+                             {materia.evaluaciones.map((eva, i) => (
+                               <li key={i} className="text-gray-600">
+                                 • <span className="font-medium">{eva.description || eva.descripcion}:</span> {eva.puntaje} <span className="text-xs text-gray-400">({eva.peso}%)</span>
+                               </li>
+                             ))}
+                           </ul>
+                        </td>
+                        <td className={`p-3 text-center font-bold align-top ${notaMostrar >= 10 ? 'text-green-600' : 'text-red-600'}`}>
+                          {notaMostrar.toFixed(2)}
+                        </td>
+                        <td className="p-3 text-center align-top">
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${
+                              notaMostrar >= 10 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                          }`}>
+                              {notaMostrar >= 10 ? 'APROBADO' : 'REPROBADO'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <button onClick={handleImprimir} className="mt-6 w-full sm:w-auto px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 transition shadow">
+              🖨️ Imprimir Reporte PDF
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }

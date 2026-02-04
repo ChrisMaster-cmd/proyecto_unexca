@@ -25,6 +25,11 @@ def guardar_notas():
             materia = Materia(nombre=data.get('nombre_materia'), semestre=data.get('semestre'))
             db.session.add(materia)
             db.session.flush()
+            
+        Nota.query.filter_by(
+            estudiante_cedula=data.get('cedula_estudiante'),
+            materia_id=materia.id
+        ).delete()
 
         # Guardamos el array de evaluaciones
         for eval in data.get('evaluaciones', []):

@@ -1,5 +1,3 @@
-// src/components/ProfesorView.jsx
-
 import React, { useState, useMemo } from 'react';
 
 function ProfesorView() {
@@ -11,7 +9,7 @@ function ProfesorView() {
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
 
-  // Simulación de datos (de un backend real)
+  // Simulación de datos (coincide con StudentView)
   const materiasPorSemestre = {
     '1': ['Introducción a la Programación', 'Cálculo I'],
     '2': ['Programación II', 'Cálculo II'],
@@ -23,29 +21,19 @@ function ProfesorView() {
     '8': ['Proyecto de Grado', 'Emprendimiento Tecnológico'],
   };
 
-  // --- Lógica de Cálculo de Notas Finales ---
-
+  // --- Lógica de Cálculo de Notas Finales (TU LÓGICA ORIGINAL) ---
   const { finalScore, totalWeight, isWeightValid } = useMemo(() => {
     let calculatedTotalWeight = 0;
     let weightedScoreSum = 0;
 
     notas.forEach(nota => {
-      // Usamos parseFloat o 0 para evitar problemas con cadenas vacías
       const score = parseFloat(nota.score) || 0;
       const weight = parseFloat(nota.weight) || 0;
-
       calculatedTotalWeight += weight;
-      
-      // Fórmula de nota ponderada: (Puntaje / 20) * Peso
-      // O, de forma más directa, Ponderación por el valor del puntaje (0-20)
       weightedScoreSum += (score * (weight / 100)); 
     });
 
-    // La nota final es la suma ponderada (ya está calculada sobre 20)
-    // El puntaje no puede superar 20
     const calculatedFinalScore = Math.min(weightedScoreSum, 20).toFixed(2);
-    
-    // Verificamos si la suma de los pesos es 100%
     const valid = calculatedTotalWeight === 100;
 
     return {
@@ -56,9 +44,7 @@ function ProfesorView() {
   }, [notas]);
 
   // --- Lógica de Manejo de Campos ---
-
   const handleAddNotaField = () => {
-    // Cuando se añade un campo, asignamos un peso por defecto y reseteamos el resto
     const newId = notas.length ? Math.max(...notas.map(n => n.id)) + 1 : 1;
     setNotas([...notas, { id: newId, score: '', weight: '', description: `Evaluación ${newId}` }]);
   };
@@ -72,7 +58,6 @@ function ProfesorView() {
   const handleFieldChange = (id, field, value) => {
     const newNotas = notas.map(nota => {
       if (nota.id === id) {
-        // Asegurar que el peso y el score sean números y estén en el rango
         if (field === 'weight') {
           const numValue = Math.min(Math.max(0, parseFloat(value || 0)), 100);
           return { ...nota, [field]: value === '' ? '' : numValue };
@@ -84,11 +69,12 @@ function ProfesorView() {
         return { ...nota, [field]: value };
       }
       return nota;
-    }); // <--- Este cierra el map
+    });
     setNotas(newNotas);
-  }; // <--- Este cierra la función
+  };
 
- const handleSubmit = async (event) => {
+  // --- Envío de Datos ---
+  const handleSubmit = async (event) => {
     event.preventDefault();
     
     if (!isWeightValid) {
@@ -97,6 +83,7 @@ function ProfesorView() {
     }
 
     setCargando(true);
+    setMensaje('');
 
     const datosAEnviar = {
       cedula_estudiante: cedula,
@@ -115,6 +102,7 @@ function ProfesorView() {
       if (response.ok) {
         setMensaje(`✅ Notas de ${cedula} guardadas. Nota Final: ${finalScore}`);
         setCedula('');
+        // Reseteamos a estado inicial
         setNotas([{ id: 1, score: '', weight: 100, description: 'Examen Final' }]);
       } else {
         const errorData = await response.json();
@@ -122,165 +110,212 @@ function ProfesorView() {
       }
     } catch (error) {
       console.error('Error:', error);
-      setMensaje('❌ No se pudo conectar con el servidor (¿Está prendido Flask?)');
+      setMensaje('❌ No se pudo conectar con el servidor.');
     } finally {
       setCargando(false);
+      // Limpiar mensaje después de 5 segundos
       setTimeout(() => setMensaje(''), 5000);
     }
   };
+
+  // Clase común para inputs (para mantener consistencia)
+  const inputClass = "w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-[#003366] outline-none transition-all text-sm";
+
   return (
-    <section className="card-section form-card">
-      <h2 className="form-title">Carga de Notas (Ponderación Dinámica)</h2>
-      {mensaje && <p className={isWeightValid ? "success-message" : "error-message"}>{mensaje}</p>}
+    // Contenedor Principal (Igual que StudentView)
+    <section className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden my-8">
+      
+      {/* Header Azul */}
+      <div className="bg-[#003366] p-6 text-center">
+        <h2 className="text-2xl font-bold text-white uppercase tracking-wider">
+          Carga de Notas (Profesor)
+        </h2>
+      </div>
 
-      <form className="grades-form" onSubmit={handleSubmit}>
-        {/* CAMPOS SUPERIORES (Cédula, Semestre, Materia) */}
-        <div className="form-group">
-          <label htmlFor="cedula">Cédula de Estudiante</label>
-          <input
-            type="text"
-            id="cedula"
-            placeholder="Cédula (8 dígitos)"
-            value={cedula}
-            onChange={(e) => {
-              const soloNumeros = e.target.value.replace(/\D/g, '');
-              setCedula(soloNumeros.slice(0, 8));
-            }}
-            maxLength="8"
-            inputMode="numeric"
-            pattern="\d*"
-            required
-          />
-        </div>
+      <div className="p-6 md:p-8">
         
-        {/* SELECTS DE SEMESTRE Y MATERIA (omitiendo código por brevedad, asumiendo que funciona) */}
-        <div className="form-group">
-          <label htmlFor="semestre">Semestre</label>
-          <select
-            id="semestre"
-            value={semestre}
-            onChange={(e) => {
-              setSemestre(e.target.value);
-              setMateria(''); 
-            }}
-            required
-          >
-            <option value="">Seleccione un Semestre</option>
-            {[...Array(8).keys()].map(i => (
-              <option key={i + 1} value={String(i + 1)}>Semestre {i + 1}</option>
-            ))}
-          </select>
-        </div>
-
-        {semestre && (
-          <div className="form-group">
-            <label htmlFor="materia">Materia</label>
-            <select
-              id="materia"
-              value={materia}
-              onChange={(e) => setMateria(e.target.value)}
-              required
-            >
-              <option value="">Seleccione una Materia</option>
-              {materiasPorSemestre[semestre]?.map((mat, index) => (
-                <option key={index} value={mat}>{mat}</option>
-              ))}
-            </select>
+        {/* Mensajes de Feedback */}
+        {mensaje && (
+          <div className={`p-3 rounded-md mb-6 text-center font-bold border ${
+            mensaje.includes('Error') || mensaje.includes('❌') 
+            ? "bg-red-50 text-red-700 border-red-200" 
+            : "bg-green-50 text-green-700 border-green-200"
+          }`}>
+            {mensaje}
           </div>
         )}
 
-        {/* ------------------ SECCIÓN DE NOTAS DINÁMICAS Y PESOS ------------------ */}
-        <div className="grades-container">
-          <label className="input-label-header">PONDERACIÓN Y NOTAS (0-20)</label>
+        <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Encabezados de la tabla de notas */}
-          <div className="grades-header">
-            <span className="col-desc">Descripción</span>
-            <span className="col-weight">Peso (%)</span>
-            <span className="col-score">Puntaje (0-20)</span>
-            <span className="col-actions">Acciones</span>
-          </div>
-
-          {/* Mapeo de campos de notas */}
-          {notas.map((notaField) => (
-            <div key={notaField.id} className="nota-input-group dynamic-fields">
-              
-              {/* Campo de Descripción */}
+          {/* Grid Superior: Cédula, Semestre, Materia */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="flex flex-col">
+              <label htmlFor="cedula" className="text-xs font-bold text-gray-700 mb-1 uppercase">Cédula Estudiante</label>
               <input
                 type="text"
-                placeholder="Descripción (e.g. Tarea 1)"
-                value={notaField.description}
-                className="col-desc"
-                onChange={(e) => handleFieldChange(notaField.id, 'description', e.target.value)}
+                id="cedula"
+                placeholder="Ej: 12345678"
+                value={cedula}
+                className={inputClass}
+                onChange={(e) => setCedula(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                maxLength="8"
                 required
               />
-
-              {/* Campo de Peso (0-100%) */}
-              <input
-                type="number"
-                min="0"
-                max="100"
-                placeholder="%"
-                value={notaField.weight}
-                className="col-weight"
-                onChange={(e) => handleFieldChange(notaField.id, 'weight', e.target.value)}
-                required
-              />
-
-              {/* Campo de Puntaje (0-20) */}
-              <input
-                type="number"
-                min="0"
-                max="20"
-                placeholder="Nota (0-20)"
-                value={notaField.score}
-                className="col-score"
-                onChange={(e) => handleFieldChange(notaField.id, 'score', e.target.value)}
-                required
-              />
-              
-              {/* Botón de Borrar */}
-              {notas.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => handleDeleteNotaField(notaField.id)}  
-                  className="delete-nota-btn col-actions"
-                  title="Eliminar Evaluación"
-                >
-                  &times;
-                </button>
-              )}
-              {notas.length === 1 && <span className="col-actions"></span>} {/* Placeholder */}
             </div>
-          ))}
+            
+            <div className="flex flex-col">
+              <label htmlFor="semestre" className="text-xs font-bold text-gray-700 mb-1 uppercase">Semestre</label>
+              <select
+                id="semestre"
+                value={semestre}
+                className={`${inputClass} bg-white`}
+                onChange={(e) => { setSemestre(e.target.value); setMateria(''); }}
+                required
+              >
+                <option value="">Seleccione...</option>
+                {[...Array(8).keys()].map(i => (
+                  <option key={i + 1} value={String(i + 1)}>Semestre {i + 1}</option>
+                ))}
+              </select>
+            </div>
 
-          <button type="button" onClick={handleAddNotaField} className="add-nota-btn">
-            + Añadir Campo de Evaluación
+            <div className="flex flex-col">
+              <label htmlFor="materia" className="text-xs font-bold text-gray-700 mb-1 uppercase">Materia</label>
+              <select
+                id="materia"
+                value={materia}
+                className={`${inputClass} bg-white`}
+                onChange={(e) => setMateria(e.target.value)}
+                disabled={!semestre}
+                required
+              >
+                <option value="">{semestre ? "Seleccione Materia" : "Primero Semestre"}</option>
+                {materiasPorSemestre[semestre]?.map((mat, index) => (
+                  <option key={index} value={mat}>{mat}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Sección Dinámica de Notas */}
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <div className="bg-gray-100 p-3 border-b border-gray-200 flex justify-between items-center">
+              <span className="font-bold text-gray-700 text-sm">EVALUACIONES Y PONDERACIÓN</span>
+              <button 
+                type="button" 
+                onClick={handleAddNotaField} 
+                className="text-xs bg-[#003366] text-white px-3 py-1 rounded hover:bg-blue-800 transition"
+              >
+                + Agregar Evaluación
+              </button>
+            </div>
+
+            <div className="p-4 bg-white">
+              {/* Encabezados Tabla */}
+              <div className="hidden md:grid grid-cols-12 gap-4 mb-2 text-xs font-bold text-gray-500 uppercase">
+                <div className="col-span-5">Descripción</div>
+                <div className="col-span-3">Peso (%)</div>
+                <div className="col-span-3">Nota (0-20)</div>
+                <div className="col-span-1 text-center">Borrar</div>
+              </div>
+
+              {/* Filas Dinámicas */}
+              {notas.map((notaField) => (
+                <div key={notaField.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-3 items-center pb-3 border-b border-gray-100 last:border-0 last:pb-0">
+                  
+                  {/* Descripción */}
+                  <div className="col-span-5">
+                    <label className="md:hidden text-xs font-bold text-gray-500">Descripción</label>
+                    <input
+                      type="text"
+                      placeholder="Ej: Examen Final"
+                      value={notaField.description}
+                      className={inputClass}
+                      onChange={(e) => handleFieldChange(notaField.id, 'description', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  {/* Peso */}
+                  <div className="col-span-3">
+                    <label className="md:hidden text-xs font-bold text-gray-500">Peso %</label>
+                    <div className="relative">
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            placeholder="%"
+                            value={notaField.weight}
+                            className={`${inputClass} pr-6 text-center`}
+                            onChange={(e) => handleFieldChange(notaField.id, 'weight', e.target.value)}
+                            required
+                        />
+                        <span className="absolute right-3 top-2 text-gray-400 text-xs">%</span>
+                    </div>
+                  </div>
+
+                  {/* Nota */}
+                  <div className="col-span-3">
+                    <label className="md:hidden text-xs font-bold text-gray-500">Nota</label>
+                     <input
+                        type="number"
+                        min="0"
+                        max="20"
+                        placeholder="0-20"
+                        value={notaField.score}
+                        className={`${inputClass} text-center font-bold ${notaField.score >= 10 ? 'text-green-700' : 'text-red-700'}`}
+                        onChange={(e) => handleFieldChange(notaField.id, 'score', e.target.value)}
+                        required
+                      />
+                  </div>
+
+                  {/* Botón Borrar */}
+                  <div className="col-span-1 text-center mt-4 md:mt-0">
+                    {notas.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteNotaField(notaField.id)}  
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition"
+                        title="Eliminar"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Pie de Tabla (Resumen) */}
+            <div className="bg-gray-50 p-4 border-t border-gray-200 flex flex-col md:flex-row justify-end items-center gap-4 text-sm">
+                <div className={`flex items-center gap-2 ${totalWeight === 100 ? 'text-green-700' : 'text-red-600 font-bold'}`}>
+                    <span>Total Peso:</span>
+                    <span className="text-lg">{totalWeight}%</span>
+                    {totalWeight !== 100 && <span className="text-xs bg-red-100 px-2 py-1 rounded">Debe sumar 100%</span>}
+                </div>
+                <div className="h-6 w-px bg-gray-300 hidden md:block"></div>
+                <div className="flex items-center gap-2 font-bold text-gray-800">
+                    <span>Nota Final Ponderada:</span>
+                    <span className="text-xl bg-white px-3 py-1 border rounded shadow-sm">{isWeightValid ? finalScore : '--'}</span>
+                </div>
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            className={`w-full font-bold py-4 rounded-md shadow-lg transform active:scale-[0.98] transition-all uppercase tracking-widest ${
+                !isWeightValid || cargando 
+                ? 'bg-gray-400 cursor-not-allowed text-gray-200' 
+                : 'bg-[#003366] hover:bg-blue-900 text-white'
+            }`}
+            disabled={!isWeightValid || cargando}
+          >
+            {cargando ? 'Guardando Notas...' : 'Guardar Notas'}
           </button>
-        </div>
-        {/* ------------------ FIN SECCIÓN DE NOTAS DINÁMICAS ------------------ */}
-
-        {/* Display de la Nota Final Calculada */}
-        <div className={`final-grade-display ${isWeightValid ? 'valid' : 'invalid'}`}>
-          <p>
-            Total de Peso Asignado: 
-            <span className="total-weight-value">{totalWeight}%</span>
-            {totalWeight !== 100 && <span className="warning-text"> (Debe ser 100%)</span>}
-          </p>
-          <p className="final-score-text">
-            Nota Final Ponderada (0-20): 
-            <span className="final-score-value">{isWeightValid ? finalScore : '--'}</span>
-          </p>
-        </div>
-        
-        <button type="submit" className="save-button" disabled={!isWeightValid || cargando}>
-          Guardar Notas
-          {cargando ? 'Procesando...' : 'Guardar Notas'}
-        </button>
-      </form>
+        </form>
+      </div>
     </section>
   );
-
 }
 
 export default ProfesorView;
